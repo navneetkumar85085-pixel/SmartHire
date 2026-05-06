@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="mt-4">
+    <h2 class="mb-4">My Dashboard</h2>
+    
+    {% if user.is_employer %}
+        <h4>Jobs You Posted</h4>
+        <div class="table-responsive mt-3">
+            <table class="table table-hover bg-white shadow-sm rounded">
+                <thead class="table-primary text-white">
+                    <tr>
+                        <th>Title</th>
+                        <th>Applications</th>
+                        <th>Posted Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for job in my_jobs %}
+                    <tr>
+                        <td><strong>{{ job.title }}</strong></td>
+                        <td>
+                            {% with count=job.applications.count %}
+                                <span class="badge bg-info">{{ count }} Applicants</span>
+                                <ul>
+                                    {% for app in job.applications.all %}
+                                        <li>{{ app.applicant.username }} ({{ app.applied_at|date }})</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endwith %}
+                        </td>
+                        <td>{{ job.created_at|date }}</td>
+                        <td>
+                            <a href="{% url 'delete_job' job.pk %}" class="btn btn-sm btn-danger" onclick="return confirm('Delete this job?')">Delete</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="text-center">You haven't posted any jobs yet.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <h4>Jobs You Applied For</h4>
+        <div class="list-group mt-3">
+            {% for app in my_applications %}
+            <div class="list-group-item d-flex justify-content-between align-items-center border-0 shadow-sm mb-2 rounded">
+                <div>
+                    <h5 class="mb-1 text-primary">{{ app.job.title }}</h5>
+                    <p class="mb-1 text-muted">{{ app.job.employer.username }} | {{ app.job.location }}</p>
+                    <small>Applied on {{ app.applied_at|date }}</small>
+                </div>
+                <span class="badge bg-success rounded-pill">Applied</span>
+            </div>
+            {% empty %}
+            <p class="text-muted">You haven't applied to any jobs yet.</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card shadow-sm border-0 mt-4">
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+                <h2 class="card-title text-primary">{{ job.title }}</h2>
+                <h5 class="text-muted">{{ job.employer.username }} &bull; {{ job.location }}</h5>
+            </div>
+            <span class="badge bg-info fs-6">{{ job.category }}</span>
+        </div>
+        
+        <hr>
+        
+        <h5 class="mt-4">Job Description</h5>
+        <p class="card-text" style="white-space: pre-wrap;">{{ job.description }}</p>
+        
+        <h5 class="mt-4">Salary Range</h5>
+        <p>{{ job.salary|default:"Not specified" }}</p>
+        
+        <div class="mt-5">
+            {% if request.user.is_authenticated %}
+                {% if request.user.is_job_seeker %}
+                    {% if has_applied %}
+                        <button class="btn btn-secondary btn-lg" disabled>✓ Applied</button>
+                    {% else %}
+                        <a href="{% url 'apply_job' job.pk %}" class="btn btn-primary btn-lg">Apply Now</a>
+                    {% endif %}
+                {% elif request.user == job.employer %}
+                    <p class="text-muted">You posted this job.</p>
+                {% endif %}
+            {% else %}
+                <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-outline-primary">Login to Apply</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
